@@ -1,7 +1,9 @@
 #include <iostream>
 #include <string>
 #include <stdlib.h>
+#include <chrono>
 using namespace std;
+using namespace std::chrono;
 
 #define CONFIG_LEN (1024)
 #define CONFIG_K   (20)
@@ -27,6 +29,7 @@ void CloneTensor(const float *srcTn, float *dstTn, int len){
 
 void SelectionSortAscending(float* tensor, int n)  
 {  
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
     int i, j, min_idx;  
 
     // One by one move boundary of unsorted subarray  
@@ -43,10 +46,16 @@ void SelectionSortAscending(float* tensor, int n)
         tensor[min_idx] = tensor[i];
         tensor[i] = tmp; 
     }  
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+    cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
 }  
 
 void SelectionSortDescending(float* tensor, int n)  
 {  
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
     int i, j, max_idx;  
 
     // One by one move boundary of unsorted subarray  
@@ -63,11 +72,17 @@ void SelectionSortDescending(float* tensor, int n)
         tensor[max_idx] = tensor[i];
         tensor[i] = tmp; 
     }  
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+    cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
 }  
 
 //only first k elements are valid
 void SelectionSortTopK(float* tensor, int n, int k)  
 {  
+    high_resolution_clock::time_point t1 = high_resolution_clock::now();
+
     int i, j, max_idx;  
 
     // One by one move boundary of unsorted subarray  
@@ -84,6 +99,10 @@ void SelectionSortTopK(float* tensor, int n, int k)
         tensor[max_idx] = tensor[i];
         tensor[i] = tmp; 
     }  
+
+    high_resolution_clock::time_point t2 = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
+    cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
 }  
 
 void PrintTensor(const float *tensor, int len, string strname){
