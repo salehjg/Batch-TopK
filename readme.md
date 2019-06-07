@@ -4,8 +4,9 @@ The main purpose of this repository is to provide a working space to test differ
 # Methods
 Currently, only selection sort algorithm is tested.
 
-#### Selection Sort Based TopK
-Function **SelectionSortTopK** uses selection sort algorithm to retrive **K** first elements of descending sorted tensor, stopping algorithm when required number of elements are sorted.
+| Function Name | Sorting Algorithm | Description |
+|:-------------:|:-------------:|:-----:|
+| SelectionSortTopK | Selection Sort | Function **SelectionSortTopK** uses selection sort algorithm to retrive **K** first elements of descending sorted tensor, stopping algorithm when required number of elements are sorted. | 
 
 # Build
 To build the project run these commands at the repository directory:
