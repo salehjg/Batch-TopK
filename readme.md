@@ -1,5 +1,5 @@
 # Goal
-The main purpose of this repository is to provide an easy environment to test different ideas about CPU implementation of **TopK** layer. 
+The main purpose of this repository is to provide an easy environment to test different ideas about CPU implementation of **TopK** layers. 
 
 # Methods
 Here is the details of implemented algorithms and layers:
