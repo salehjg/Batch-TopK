@@ -123,9 +123,9 @@ void BatchSelectionSortTopK(
                 outputTn[batch*dim2 + max_idx] = outputTn[batch*dim2 + i];
                 outputTn[batch*dim2 + i] = tmp;
                 //------------------------------------------------------------
-                int tmpi = indicesTn[batch*kValue + max_idx];
-                indicesTn[batch*kValue + max_idx] = indicesTn[batch*kValue + i];
-                indicesTn[batch*kValue + i] = tmpi;
+                int tmpi = indicesTn[batch*dim2 + max_idx];
+                indicesTn[batch*dim2 + max_idx] = indicesTn[batch*dim2 + i];
+                indicesTn[batch*dim2 + i] = tmpi;
             }
         } 
 
@@ -171,7 +171,7 @@ void PrintTensor(
         for(int d1=0; d1<limitDim1; d1++){
             for(int d2=0; d2<limitDim2; d2++){
                 indxD = d0*dim1*dim2 + d1*dim2 + d2;
-                cout<< strname << "[d0,d1,d2: "<< d0 << ", " << d1 << ", " << d2 << "] =\t" << tensor[indxD] << endl;
+                cout<< strname << "[d0,d1,d2,glbl: "<< d0 << ", " << d1 << ", " << d2 << ", "<< indxD << "] =\t" << tensor[indxD] << endl;
             }
         }
     }
@@ -194,6 +194,7 @@ int main(){
     BatchSelectionSortTopK(distanceTn, indicesTn, indicesSplitedTn, sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, CONFIG_K);
 
     // 3. Dumping some of the sortedTn dim2 slices for the user.
+    PrintTensor<float>(distanceTn, CONFIG_B, CONFIG_N, CONFIG_N, "distanceTn",CONFIG_B, CONFIG_N, CONFIG_N);
     PrintTensor<float>(sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, "sortedTn",CONFIG_B, CONFIG_N, CONFIG_N);
     PrintTensor<int>(indicesTn, CONFIG_B, CONFIG_N, CONFIG_N, "indicesTn",CONFIG_B, CONFIG_N, CONFIG_N);
     PrintTensor<int>(indicesSplitedTn, CONFIG_B, CONFIG_N, CONFIG_K, "indicesSplitedTn",CONFIG_B, CONFIG_N, CONFIG_K);
