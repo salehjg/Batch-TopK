@@ -37,6 +37,8 @@ void InitTensor(float *tensor, int dim0, int dim1, int dim2, int mode){
                     tensor[indxD] = 10*(d1*d0) + d2;
                 }else if(mode==-1){
                     tensor[indxD] = 0;
+                }else if(mode==3){
+                    tensor[indxD] = indxD;
                 }
             }
         }
@@ -74,6 +76,7 @@ outputTn:   OUTPUT- Fully sorted version of inputTn (dim0xdim1xdim2)
 void BatchSelectionSortTopK(
     const float* inputTn,
     int* indicesTn,
+    int* indicesSplitedTn,
     float* outputTn,
     int dim0,
     int dim1,
@@ -81,6 +84,7 @@ void BatchSelectionSortTopK(
     int kValue){
 
     int i, j, max_idx;
+    unsigned long indxD, indxS;
     
     assert(kValue<dim2);
 
@@ -127,13 +131,26 @@ void BatchSelectionSortTopK(
 
     }
 
+    // 4. Splitting indicesTn which is of shape BxNxN into BxNxK
+	for(int batch=0; batch<dim0*dim1; batch++){
+
+		// Run selection sort on current slice of dim2.
+		for (i = 0; i < kValue; i++){
+			indxS = batch*dim2 + i;
+			indxD = batch*kValue + i;
+
+			indicesSplitedTn[indxD] = indicesTn[indxS];
+		}
+	}
+
     high_resolution_clock::time_point t2 = high_resolution_clock::now();
     auto duration = duration_cast<microseconds>( t2 - t1 ).count();
     cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
 }
 
+template<typename DType>
 void PrintTensor(
-    const float *tensor,
+    const DType *tensor,
     int dim0,
     int dim1,
     int dim2,
@@ -166,16 +183,19 @@ int main(){
     float *distanceTn = new float[CONFIG_B * CONFIG_N * CONFIG_N];
     float *sortedTn = new float[CONFIG_B * CONFIG_N * CONFIG_N];
     int *indicesTn = new int[CONFIG_B * CONFIG_N * CONFIG_N];
+    int *indicesSplitedTn = new int[CONFIG_B * CONFIG_N * CONFIG_K];
 
     // 1. Init batch of distance matrices of NxN. (BxNxN)
-    InitTensor(distanceTn, CONFIG_B, CONFIG_N, CONFIG_N, 1);
-    InitTensor(sortedTn,   CONFIG_B, CONFIG_N, CONFIG_N, 0);
-    InitTensor(indicesTn,  CONFIG_B, CONFIG_N, CONFIG_N, 0);
+    InitTensor(distanceTn, CONFIG_B, CONFIG_N, CONFIG_N, 3);
+    //InitTensor(sortedTn,   CONFIG_B, CONFIG_N, CONFIG_N, 0);
+    //InitTensor(indicesTn,  CONFIG_B, CONFIG_N, CONFIG_N, 0);
 
     // 2. Run batch-topk op on distance tensor.
-    BatchSelectionSortTopK(distanceTn, indicesTn, sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, CONFIG_K);
+    BatchSelectionSortTopK(distanceTn, indicesTn, indicesSplitedTn, sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, CONFIG_K);
 
     // 3. Dumping some of the sortedTn dim2 slices for the user.
-    PrintTensor(sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, "sortedTn");
+    PrintTensor<float>(sortedTn, CONFIG_B, CONFIG_N, CONFIG_N, "sortedTn",CONFIG_B, CONFIG_N, CONFIG_N);
+    PrintTensor<int>(indicesTn, CONFIG_B, CONFIG_N, CONFIG_N, "indicesTn",CONFIG_B, CONFIG_N, CONFIG_N);
+    PrintTensor<int>(indicesSplitedTn, CONFIG_B, CONFIG_N, CONFIG_K, "indicesSplitedTn",CONFIG_B, CONFIG_N, CONFIG_K);
 
 }
