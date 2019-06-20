@@ -149,60 +149,6 @@ void BatchSelectionSortTopK(
     cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
 }
 
-// Optimized version of BatchSelectionSortTopK.
-void BatchSelectionSortTopK2(
-    const float* inputTn,
-    int* indicesSplitedTn,
-    float* outputTn,
-    int dim0,
-    int dim1,
-    int dim2,
-    int kValue){
-
-    int i, j, max_idx;
-    unsigned long indxD, indxS;
-    
-    assert(kValue<dim2);
-
-    high_resolution_clock::time_point t1 = high_resolution_clock::now();
-
-    // 1. Copy inputTn into outputTn, so sorting algorithm could be
-    //    run on outputTn without editing inputTn.
-    for(unsigned long i = 0; i<dim0*dim1*dim2; i++){
-        outputTn[i] = inputTn[i];
-    }
-
-    // 2. Running descending selection sort only for first k elements of
-    //    each of dim2 slices of outputTn(which is a clone of inputTn).
-    for(int batch=0; batch<dim0*dim1; batch++){
-
-        // Run selection sort on current slice of dim2.
-        for (i = 0; i < kValue; i++)  
-        {  
-            // Find the maximum element in unsorted array  
-            max_idx = i;  
-            for (j = i+1; j < dim2; j++){
-                if (outputTn[batch*dim2 + j] > outputTn[batch*dim2 + max_idx])
-                    max_idx = j;  
-            }
-            
-            // Swap the found maximum element with the first element  
-            if(max_idx != i){
-                float tmp = outputTn[batch*dim2 + max_idx];
-                outputTn[batch*dim2 + max_idx] = outputTn[batch*dim2 + i];
-                outputTn[batch*dim2 + i] = tmp;
-            }
-
-            indicesSplitedTn[batch*kValue + i] = max_idx;
-        } 
-
-    }
-
-    high_resolution_clock::time_point t2 = high_resolution_clock::now();
-    auto duration = duration_cast<microseconds>( t2 - t1 ).count();
-    cout << "Execution Time (" << __func__ << ") (microseconds): "<< duration << endl;
-}
-
 template<typename DType>
 void PrintTensor(
     const DType *tensor,
